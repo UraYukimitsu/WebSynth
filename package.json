@@ -1,0 +1,11 @@
+{
+  "name": "synth",
+  "version": "1.0.0",
+  "description": "WebAudio + WebMIDI synth",
+  "main": "index.js",
+  "scripts": {
+    "start": "http-server -S -C cert.pem"
+  },
+  "author": "Ura Yukimitsu",
+  "license": "BSD-3-Clause"
+}

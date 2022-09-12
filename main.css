@@ -1,0 +1,11 @@
+body {
+	background: #D8D8D8;
+	font-family: sans-serif;
+	text-align: center;
+}
+
+[data-value]::after
+{
+	display: inline-block;
+	content: attr(data-value);
+}

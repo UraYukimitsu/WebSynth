@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Music test</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" type="text/css" media="screen" href="main.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="piano.css" />
+	<script type="module" src="./main.js"></script>
+</head>
+<body>
+	<label for="waveType">Main osc type</label>
+	<select name="waveType" id="waveType" onchange="mainOscillator.type = this.value">
+		<option value="square" selected>Square</option>
+		<option value="sine">Sine</option>
+		<option value="sawtooth">Sawtooth</option>
+		<option value="triangle">Triangle</option>
+	</select>
+	<div id="sliders">
+		<div class="slider">
+			<label for="slider70">LFO freq.</label>
+			<input type="range" name="slider70" id="slider70" min="0" max="20" step="0.1" onchange="lfo.frequency.value = this.value" data-knob="70">
+		</div>		
+	</div>
+	<div id="mountArea"></div>
+	<button onclick="initAudio(this)">Init audio</button>
+	<h2 id="warning"></h2>
+	<div id="piano">
+		<div class="whiteKey"></div>
+			<div class="blackKey"></div>
+		<div class="whiteKey"></div>
+			<div class="blackKey"></div>
+		<div class="whiteKey"></div>
+		<div class="whiteKey"></div>
+			<div class="blackKey"></div>
+		<div class="whiteKey"></div>
+			<div class="blackKey"></div>
+		<div class="whiteKey"></div>
+			<div class="blackKey"></div>
+		<div class="whiteKey"></div>
+		<div class="whiteKey"></div>
+			<div class="blackKey"></div>
+		<div class="whiteKey"></div>
+			<div class="blackKey"></div>
+		<div class="whiteKey"></div>
+		<div class="whiteKey"></div>
+			<div class="blackKey"></div>
+		<div class="whiteKey"></div>
+			<div class="blackKey"></div>
+		<div class="whiteKey"></div>
+			<div class="blackKey"></div>
+		<div class="whiteKey"></div>
+		<div class="whiteKey"></div>
+			<div class="blackKey"></div>
+		<div class="whiteKey"></div>
+			<div class="blackKey"></div>
+		<div class="whiteKey"></div>
+		<div class="whiteKey"></div>
+			<div class="blackKey"></div>
+		<div class="whiteKey"></div>
+			<div class="blackKey"></div>
+		<div class="whiteKey"></div>
+			<div class="blackKey"></div>
+		<div class="whiteKey"></div>
+		<div class="whiteKey"></div>
+			<div class="blackKey"></div>
+		<div class="whiteKey"></div>
+			<div class="blackKey"></div>
+		<div class="whiteKey"></div>
+		<div class="whiteKey"></div>
+			<div class="blackKey"></div>
+		<div class="whiteKey"></div>
+			<div class="blackKey"></div>
+		<div class="whiteKey"></div>
+			<div class="blackKey"></div>
+		<div class="whiteKey"></div>
+	</div>
+</body>
+</html>
