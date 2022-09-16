@@ -4,8 +4,11 @@
   "description": "WebAudio + WebMIDI synth",
   "main": "index.js",
   "scripts": {
-    "start": "http-server -S -C cert.pem"
+    "start": "npx http-server -S -C cert.pem"
   },
   "author": "Ura Yukimitsu",
-  "license": "BSD-3-Clause"
+  "license": "BSD-3-Clause",
+  "dependencies": {
+    "http-server": "^14.1.1"
+  }
 }
