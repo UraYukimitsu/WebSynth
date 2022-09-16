@@ -7,27 +7,9 @@ import TickGenerator from "./TickGenerator.js";
 import Arpeggiator from "./Arpeggiator.js";
 import LFO from "./LFO.js";
 
-// function setupPiano() {
-//     if(window.isSetup) return;
-//     window.isSetup = true;
-// 	var piano = document.getElementById('piano');
-// 	piano.style = 'display: flex;';
-// 	for(let i in piano.children) {
-// 		if(i == 'length')
-// 			break;
-// 		piano.children[i].dataset.note = parseInt(i)+36;
-// 		piano.children[i].addEventListener('mousedown', (c) => {
-// 			processMidiMessage([144, c.target.dataset.note, 16])
-// 		});
-// 		piano.children[i].addEventListener('mouseup', (c) => {
-// 			processMidiMessage([128, c.target.dataset.note, 0])
-// 		});
-// 	}
-// }
-
-function mountModule(module)
+function mountModule(module, area = 'mountArea')
 {
-	document.getElementById('mountArea').appendChild(module.getDOMElement());
+	document.getElementById(area).appendChild(module.getDOMElement());
 }
 
 window.initAudio = function(button)
@@ -36,7 +18,7 @@ window.initAudio = function(button)
 	{
 		window.audio = new (window.AudioContext || window.webkitAudioContext)();
 		await audio.audioWorklet.addModule(TickGenerator.workletFile);
-		window.midiInput = new MidiInput({name: ''});
+		window.midiInput = new MidiInput({name: 'MIDI'});
 
 		window.arpeggiator = new Arpeggiator(audio, {name: 'Arpeggiator'});
 		mountModule(arpeggiator);
@@ -65,6 +47,8 @@ window.initAudio = function(button)
 
 		window.mainGain = new CustomParam(audio, {defaultValue: 0.1, min: 0, max: 1, name: 'Main gain'});
 		mountModule(mainGain);
+
+		mountModule(midiInput, 'pianoMount');
 
 		arpeggiator.connect(modulationOscillator);
 		midiInput.connect(arpeggiator)

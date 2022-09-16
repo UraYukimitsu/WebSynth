@@ -1,6 +1,6 @@
-#piano
+.piano
 {
-	display: none;
+	display: flex;
 	margin-left: auto;
 	margin-right: auto;
 	justify-content: center;
@@ -26,4 +26,14 @@
 	margin-left: -15px;
 	left: 7.5px;
 	z-index: 10;
+}
+
+.pressed::after
+{
+	display: block;
+	content: '';
+	position: absolute;
+	inset: 2px 2px;
+	background: #F00;
+	opacity: 75%;
 }

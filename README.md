@@ -23,8 +23,9 @@ Please note that I am using it with my own setup, which includes an Akai MPK min
 - [ ] Sequencer node
 - [ ] Filter node
 - [ ] Pitch shift node
-- [ ] On-screen piano keyboard
+- [x] On-screen piano keyboard
 - [ ] Load presets from JSON
 - [ ] Visual representation of how the different modules are connected
 - [ ] Visual patch editor
 - [ ] Save patches to localstorage or file
+- [ ] Detailed description/decumentation of the modules
