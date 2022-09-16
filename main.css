@@ -1,6 +1,6 @@
 body {
 	background: #D8D8D8;
-	font-family: sans-serif;
+	font-family: monospace;
 	text-align: center;
 }
 
@@ -8,4 +8,19 @@ body {
 {
 	display: inline-block;
 	content: attr(data-value);
+	font-family: monospace;
+	max-width: 5ch;
+	overflow: hidden;
+}
+
+#mountArea
+{
+	display: flex;
+}
+
+.synthModule
+{
+	border: 1px solid #AAAAAA;
+	margin: 5px;
+	padding: 5px;
 }

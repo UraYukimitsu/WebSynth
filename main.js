@@ -1,150 +1,79 @@
-import EnvelopeGenerator from "./EnvelopeGenerator.js";
-import noteFrequencies from "./noteFrequencies.js";
+import CustomParam from "./CustomParam.js";
+import Delay from "./Delay.js";
+import MainOscillator from "./MainOscillator.js";
+import ModulationOscillator from "./ModulationOscillator.js"
+import MidiInput from "./MidiInput.js";
+import TickGenerator from "./TickGenerator.js";
+import Arpeggiator from "./Arpeggiator.js";
+import LFO from "./LFO.js";
 
-function onMIDIFailure() {
-	document.getElementById('warning').innerText = 'WebMIDI access failure.';
-    setupPiano();
-}
+// function setupPiano() {
+//     if(window.isSetup) return;
+//     window.isSetup = true;
+// 	var piano = document.getElementById('piano');
+// 	piano.style = 'display: flex;';
+// 	for(let i in piano.children) {
+// 		if(i == 'length')
+// 			break;
+// 		piano.children[i].dataset.note = parseInt(i)+36;
+// 		piano.children[i].addEventListener('mousedown', (c) => {
+// 			processMidiMessage([144, c.target.dataset.note, 16])
+// 		});
+// 		piano.children[i].addEventListener('mouseup', (c) => {
+// 			processMidiMessage([128, c.target.dataset.note, 0])
+// 		});
+// 	}
+// }
 
-function onMIDISuccess(midi) {
-	globalThis.midi = midi;
-	midi.inputs.forEach(e => {
-		document.getElementById('warning').innerText += 'Connected to ' + e.name;
-		e.onmidimessage = message => {
-			console.log(message.data);
-			processMidiMessage(message.data);
-		};
-	});
-
-	setupPiano();
-}
-
-function setupPiano() {
-    if(window.isSetup) return;
-    window.isSetup = true;
-	var piano = document.getElementById('piano');
-	piano.style = 'display: flex;';
-	for(let i in piano.children) {
-		if(i == 'length')
-			break;
-		piano.children[i].dataset.note = parseInt(i)+36;
-		piano.children[i].addEventListener('mousedown', (c) => {
-			processMidiMessage([144, c.target.dataset.note, 16])
-		});
-		piano.children[i].addEventListener('mouseup', (c) => {
-			processMidiMessage([128, c.target.dataset.note, 0])
-		});
-	}
-}
-
-function playNote(frequency)
+function mountModule(module)
 {
-    mainOscillator.frequency.value = frequency;
-	envelope.start();
-}
-
-function stopNote()
-{
-	envelope.stop();
-}
-
-function processMidiMessage(data)
-{
-	switch (data[0])
-	{
-		case 128: // Note OFF
-			try {
-				if (window.currentNote == data[1])
-					stopNote();
-			} catch(_) {
-				console.error(_);
-			}
-			break;
-
-		case 144: // Note ON
-			var noteList = document.getElementsByClassName('note');
-			if(noteList.length > 0)
-				for(i in noteList)
-					noteList[i].outerHTML = '';
-
-			if (data[2] == 0)
-			{
-				if (window.currentNote == data[1])
-					stopNote();
-			} else {
-				try {
-					window.currentNote = data[1];
-					playNote(noteFrequencies[data[1]]);
-				} catch(_) {
-					console.error(_);
-				}
-			}
-			break;
-
-		case 176: // Knob
-			let sliders = document.querySelectorAll(`[data-knob="${data[1]}"]`);
-			sliders.forEach(slider => {
-				if (typeof slider !== 'object')
-					return;
-
-				if (data[2] & 64)
-					slider.value = Number(slider.value) - (128 - data[2]) * Number(slider.step);
-				else
-					slider.value = Number(slider.value) + data[2] * Number(slider.step);
-				
-				slider.dispatchEvent(new Event('change'));
-			})
-			
-			break;
-	}
+	document.getElementById('mountArea').appendChild(module.getDOMElement());
 }
 
 window.initAudio = function(button)
 {
-	if (navigator.requestMIDIAccess) {
-		navigator.requestMIDIAccess().then(onMIDISuccess, onMIDIFailure);
-	} else {
-		document.getElementById('warning').innerText = 'This browser does not support WebMIDI.';
-        setupPiano();
-	}
+	(async () =>
+	{
+		window.audio = new (window.AudioContext || window.webkitAudioContext)();
+		await audio.audioWorklet.addModule(TickGenerator.workletFile);
+		window.midiInput = new MidiInput({name: ''});
 
-	window.audio = new (window.AudioContext || window.webkitAudioContext)();
-	window.mainOscillator = audio.createOscillator();
-	mainOscillator.type = 'square';
-	mainOscillator.start(0);
+		window.arpeggiator = new Arpeggiator(audio, {name: 'Arpeggiator'});
+		mountModule(arpeggiator);
 
-	window.modulationOscillator = audio.createOscillator();
-	modulationOscillator.type = 'sine';
-	modulationOscillator.start(0);
-	
-	window.envelope = new EnvelopeGenerator(audio, 1, 1, 0.5, 1.5, "envelope");
-	document.getElementById('mountArea').appendChild(envelope.getDOMElement());
+		window.mainOscillator = new MainOscillator(audio, {name: 'Main oscillator'});
+		mainOscillator.type = 'square';
+		mainOscillator.envelope.attack.knob  = 74;
+		mainOscillator.envelope.decay.knob   = 75;
+		mainOscillator.envelope.sustain.knob = 76;
+		mainOscillator.envelope.release.knob = 77;
+		mountModule(mainOscillator);
 
-	window.lfoGain = audio.createGain();
-	window.lfo = audio.createOscillator();
-	lfo.type = 'sine';
-	lfo.frequency.value = 0;
-	lfo.connect(lfoGain.gain);
-	lfo.start(0);
+		window.modulationOscillator = new ModulationOscillator(audio, {name: 'Modulation oscillator', ratio: 2});
+		modulationOscillator.type = 'sawtooth';
+		modulationOscillator.connect(modulationOscillator.frequency);
+		modulationOscillator.connect(mainOscillator.frequency);
+		mountModule(modulationOscillator);
 
-	window.mainGain = audio.createGain();
-	mainGain.gain.value = 0.1;
+		window.lfo = new LFO(audio, {name: 'LFO', defaultValue: 0});
+		lfo.type = 'sine';
+		lfo.frequency.knob = 70;
+		mountModule(lfo);
 
-	window.delay = audio.createDelay();
-	delay.delayTime.value = 0.5;
-	window.delayGain = audio.createGain();
-	delayGain.gain.value = 0.4;
-	delay.connect(delayGain);
-	delayGain.connect(delay);
+		window.delay = new Delay(audio, {name: 'Delay'});
+		mountModule(delay);
 
-	mainOscillator.connect(envelope);
-	envelope.connect(lfoGain);
-	lfoGain.connect(delay);
-	lfoGain.connect(mainGain);
-	delayGain.connect(mainGain);
-	mainGain.connect(audio.destination);
+		window.mainGain = new CustomParam(audio, {defaultValue: 0.1, min: 0, max: 1, name: 'Main gain'});
+		mountModule(mainGain);
 
-	envelope.drawGraph();
+		arpeggiator.connect(modulationOscillator);
+		midiInput.connect(arpeggiator)
+			.connect(mainOscillator)
+			.connect(lfo)
+			.connect(delay)
+			.connect(mainGain.node)
+			.connect(audio.destination);
+	})();
 
 	button.outerHTML = '';
 }

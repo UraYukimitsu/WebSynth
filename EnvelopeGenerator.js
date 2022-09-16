@@ -1,25 +1,40 @@
 import CustomParam from "./CustomParam.js";
 
 export default class EnvelopeGenerator extends GainNode {
-    constructor(ctx, attack, decay, sustain, release, name)
+    #name;
+    #attack;
+    #decay;
+    #sustain;
+    #release;
+    #timeout;
+
+    constructor(audioContext, {attack = 0.1, decay = 0.1, sustain = 0.8, release = 0.4, name})
     {
-        super(ctx, {});
-        this.attack  = new CustomParam(ctx, {defaultValue: attack,  min: 0, max: 2, name: 'attack',  parent: this, knob: 74, onchange: () => this.drawGraph.call(this)});
-        this.decay   = new CustomParam(ctx, {defaultValue: decay,   min: 0, max: 2, name: 'decay',   parent: this, knob: 75, onchange: () => this.drawGraph.call(this)});
-        this.sustain = new CustomParam(ctx, {defaultValue: sustain, min: 0, max: 1, name: 'sustain', parent: this, knob: 76, onchange: () => this.drawGraph.call(this)});
-        this.release = new CustomParam(ctx, {defaultValue: release, min: 0, max: 2, name: 'release', parent: this, knob: 77, onchange: () => this.drawGraph.call(this)});
-        this.timeout = -1;
-        this.name = name;
+        super(audioContext, {});
+        this.#attack  = new CustomParam(audioContext, {defaultValue: attack,  min: 0, max: 2, name: 'attack',  parent: this, onchange: () => this.drawGraph.call(this)});
+        this.#decay   = new CustomParam(audioContext, {defaultValue: decay,   min: 0, max: 2, name: 'decay',   parent: this, onchange: () => this.drawGraph.call(this)});
+        this.#sustain = new CustomParam(audioContext, {defaultValue: sustain, min: 0, max: 1, name: 'sustain', parent: this, onchange: () => this.drawGraph.call(this)});
+        this.#release = new CustomParam(audioContext, {defaultValue: release, min: 0, max: 2, name: 'release', parent: this, onchange: () => this.drawGraph.call(this)});
+        this.#timeout = -1;
+        this.#name = name;
         this.gain.setValueAtTime(0, this.context.currentTime);
     }
+
+    get moduleType() { return "EnvelopeGenerator"; }
+    get name() { return this.#name; }
+
+    get attack()  { return this.#attack;  }
+    get decay()   { return this.#decay;   }
+    get sustain() { return this.#sustain; }
+    get release() { return this.#release; }
 
     start()
     {
         this.cancelEvents();
         this.gain.linearRampToValueAtTime(1, this.context.currentTime + this.attack.value);
-        this.timeout = window.setTimeout(() => {
+        this.#timeout = window.setTimeout(() => {
             this.gain.linearRampToValueAtTime(this.sustain.value, this.context.currentTime + this.attack.value + this.decay.value);
-            this.timeout = -1;
+            this.#timeout = -1;
         }, this.attack * 1000);
     }
 
@@ -31,10 +46,10 @@ export default class EnvelopeGenerator extends GainNode {
 
     cancelEvents()
     {
-        if (this.timeout >= 0)
+        if (this.#timeout >= 0)
         {
-            window.clearTimeout(this.timeout);
-            this.timeout = -1;
+            window.clearTimeout(this.#timeout);
+            this.#timeout = -1;
         }
         this.gain.setValueAtTime(this.gain.value, this.context.currentTime);
         this.gain.cancelAndHoldAtTime(this.context.currentTime);
@@ -60,9 +75,9 @@ export default class EnvelopeGenerator extends GainNode {
         graph.setAttribute('viewBox', `0 0 ${duration * 100} 100`);
 
         let gridPath = `M0 50 H${duration * 100}`;
-        for (let i = 1; i < duration; i++)
+        for (let i = 1; i < duration * 2; i++)
         {
-            gridPath += ` M${i * 100} 0 V100`;
+            gridPath += ` M${i * 50} 0 V100`;
         }
         graph.innerHTML = `<path d="${gridPath}" stroke="#008800" fill="transparent" />`;
 

@@ -4,13 +4,14 @@ export default class CustomParam
     #ctx;
     #min;
     #max;
+    #step;
     #defaultValue;
     #name;
     #parent;
     #onchange;
     #knob;
 
-    constructor(ctx, {defaultValue = 0, min = 0, max = 1, name = '', parent, onchange, knob})
+    constructor(ctx, {defaultValue = 0, min = 0, max = 1, step, name = '', parent, onchange, knob})
     {
         this.#ctx = ctx;
         this.#internal = new GainNode(ctx, {});
@@ -22,7 +23,14 @@ export default class CustomParam
         this.#parent = parent;
         this.onchange = onchange;
         this.knob = knob;
+
+        if (typeof step === "undefined")
+            this.#step = (this.maxValue - this.minValue) / 255;
+        else
+            this.#step = step;
     }
+
+    get node() { return this.#internal; }
 
     get value() { return this.#internal.gain.value; }
     set value(v)
@@ -37,7 +45,7 @@ export default class CustomParam
         
 
         if (typeof this.onchange === 'function')
-            this.onchange();
+            this.onchange(v);
     }
 
     get onchange() { return this.#onchange; }
@@ -56,11 +64,13 @@ export default class CustomParam
             throw new Error(`knob: needs to be a number`);
 
         this.#knob = k;
+        this.getDOMElement().querySelector('input').dataset.knob = k;
     }
 
     get ctx() { return this.#ctx; }
     get minValue() { return this.#min; }
     get maxValue() { return this.#max; }
+    get step() { return this.#step; }
     get defaultValue() { return this.#defaultValue; }
     get name() { return this.#name; }
     get parent() { return this.#parent; }
@@ -73,7 +83,13 @@ export default class CustomParam
     cancelScheduledValues(startTime) { this.#internal.cancelScheduledValues(startTime); return this; }
     cancelAndHoldAtTime(cancelTime) { this.#internal.cancelAndHoldAtTime(cancelTime); return this; }
 
-    get elementId() { return `${this.parent.name}-${this.name}`; }
+    get elementId()
+    {
+        if (typeof this.parent !== 'undefined')
+            return `${this.parent.name}-${this.name}`;
+        else
+            return `root-${this.name}`;
+    }
 
     getDOMElement()
     {
@@ -90,7 +106,7 @@ export default class CustomParam
             range.id = `${this.elementId}-range`;
             range.min = this.minValue;
             range.max = this.maxValue;
-            range.step = (this.maxValue - this.minValue) / 256;
+            range.step = this.step;
             range.value = this.value;
             range.addEventListener('change', v => this.value = v.target.value);
             if (typeof this.knob === "number")
