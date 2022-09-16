@@ -1,6 +1,6 @@
 # WebSynth
 
-(Provisional name)
+(Name pending)
 
 This is a modular synthethizer using the WebMIDI and WebAudio APIs.
 
