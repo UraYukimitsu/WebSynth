@@ -11,7 +11,7 @@ export default class LFO extends GainNode
     {
         super(audioContext);
         this.#name = name;
-        this.#frequency = new CustomParam(audioContext, {defaultValue, min: 0, max: 20, step: 0.01, name: 'frequency', parent: this, onchange: () => this.#updateFrequency.call(this)});
+        this.#frequency = new CustomParam(audioContext, {defaultValue, min: 0, max: 20, step: 0.1, name: 'frequency', parent: this, onchange: () => this.#updateFrequency.call(this)});
         this.#oscillator = new OscillatorNode(audioContext);
         this.#oscillator.frequency.value = defaultValue;
 
