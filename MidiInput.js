@@ -54,7 +54,7 @@ export default class MidiInput extends NoteSource {
                 if (data[2] == 0)
                 {
                     this.stopNote(noteFrequencies[data[1]]);
-                    let key = document.querySelector(`[data-note="${data[1]}"]`);
+                    let key = this.getDOMElement().querySelector(`[data-note="${data[1]}"]`);
                     if (key != null)
                     {
                         key.classList.remove('pressed');
@@ -62,7 +62,7 @@ export default class MidiInput extends NoteSource {
                 } else {
                     try {
                         this.playNote(noteFrequencies[data[1]]);
-                        let key = document.querySelector(`[data-note="${data[1]}"]`);
+                        let key = this.getDOMElement().querySelector(`[data-note="${data[1]}"]`);
                         if (key != null)
                         {
                             key.classList.add('pressed');
