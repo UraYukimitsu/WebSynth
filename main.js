@@ -12,8 +12,17 @@ function mountModule(module, area = 'mountArea')
 	document.getElementById(area).appendChild(module.getDOMElement());
 }
 
+function cancelAndHoldAtTime(time)
+{
+	let curValue = this.value;
+	this.cancelScheduledValues(time);
+	this.setValueAtTime(curValue, time);
+}
+
 window.initAudio = function(button)
 {
+	if (typeof AudioParam.prototype.cancelAndHoldAtTime === 'undefined')
+		AudioParam.prototype.cancelAndHoldAtTime = cancelAndHoldAtTime;
 	(async () =>
 	{
 		window.audio = new (window.AudioContext || window.webkitAudioContext)();
